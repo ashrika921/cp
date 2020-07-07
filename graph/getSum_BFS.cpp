@@ -1,8 +1,7 @@
-/*
-Code : Get Path - DFS
+/* Code : Get Path - BFS
 Send Feedback
 Given an undirected graph G(V, E) and two vertices v1 and v2(as integers), find and print the path from v1 to v2 (if exists). Print nothing if there is no path between v1 and v2.
-Find the path using DFS and print the first path that you encountered.
+Find the path using BFS and print the shortest path available.
 V is the number of vertices present in graph G and vertices are numbered from 0 to V-1.
 E is the number of edges present in graph G.
 Print the path in reverse order. That is, print v2 first, then intermediate vertices and v1 at last.
@@ -31,38 +30,50 @@ Sample Input 2 :
 5 3
 0 1
 3 4
-0 3
-Sample Output 2 :
-*/
+0 3   */
 #include <iostream>
 #include<queue>
+#include<iostream>
+#include<unordered_map>
 using namespace std;
-vector<int>* getPathHelper(int** edges,int n,int sv,int ev,bool* visited){
-    if(sv==ev){
-        vector<int>* output=new vector<int>();
-        output->push_back(ev);
-        return output;
-    }
-    visited[sv]=true;
-    for(int i=0;i<n;i++){
-        if(edges[sv][i] && !visited[i]){
-            vector<int>* smallOutput = getPathHelper(edges,n,i,ev,visited);
-            if(smallOutput!=NULL){
-                smallOutput->push_back(sv);
-                return smallOutput;
-            }
-        }
-    }
-    return NULL;
-}
 vector<int>* getPath(int** edges,int n,int sv,int ev){
+    queue<int> bfsQ;
     bool* visited=new bool[n];
     for(int i=0;i<n;i++){
         visited[i]=false;
     }
-    vector<int>* output=getPathHelper(edges,n,sv,ev,visited);
+    bfsQ.push(sv);
+    visited[sv]=true;
+    bool done=false;
+    unordered_map<int,int> parent;
+    while(!bfsQ.empty() && !done){
+        int front=bfsQ.front();
+        bfsQ.pop();
+        for(int i=0;i<n;i++){
+            if(edges[front][i] &&!visited[i]){
+                parent[i]=front;
+                bfsQ.push(i);
+                visited[i]=true;
+                if(i==ev){
+                    done=true;
+                    break;
+                }
+            }
+        }
+    }
     delete[] visited;
-    return output;
+    if(!done){
+        return NULL;
+    }else{
+        vector<int>* output=new vector<int>();
+        int current=ev;
+        output->push_back(ev);
+        while(current!=sv){
+            current=parent[current];
+            output->push_back(current);
+        }
+        return output;
+    }
 }
 int main() {
     int n;cin>>n;
@@ -93,3 +104,4 @@ int main() {
         delete[] edges[i];
     }
 }
+
